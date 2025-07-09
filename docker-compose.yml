@@ -1,0 +1,39 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: simple_cms_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  client:
+    build:
+      context: .
+      dockerfile: src/client/Dockerfile
+    container_name: simple_cms_client
+    ports:
+      - "5555:5555"
+    environment:
+      - VITE_SERVER_URL=http://localhost:8080/api
+      - VITE_PORT=5555
+
+  server:
+    build:
+      context: .
+      dockerfile: src/server/Dockerfile
+    container_name: simple_cms_server
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - HASH_KEY=1R4YHl69GkyoGqEWSrk2vfa5u1P7mmYX
+      - MONGO_URI=mongodb://simple_cms_mongo:27017/simplecms
+      - CLIENT_URL=http://localhost:5555
+      - JWT_SECRET=9R4YHhl69GkyoGqdEWSgrk24vfa5u1P5nnUH
+      - JWT_LIFETIME=1
+    depends_on:
+      - mongo
+
+volumes:
+  mongo-data:

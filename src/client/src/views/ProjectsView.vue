@@ -4,7 +4,7 @@
     <button class="btn" @click="goToCreate">Добавить</button>
     <div v-if="projects.length === 0" class="empty-state">
       <p>У вас пока нет проектов</p>
-      <router-link to="/projects/new" class="create-btn">
+      <router-link to="/create/projects" class="create-btn">
         Создать первый проект
       </router-link>
     </div>

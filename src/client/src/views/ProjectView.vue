@@ -76,10 +76,10 @@ const route = useRoute()
 const router = useRouter()
 
 const project = ref({
-  name: '',
-  content: '',
-  author: {},
-  createdAt: ''
+    name: '',
+    content: '',
+    author: {},
+    createdAt: ''
 })
 const commits = ref([])
 const isEditing = ref(false)
@@ -88,96 +88,100 @@ const editableContent = ref('')
 const isOwner = ref(false)
 
 onMounted(async () => {
-  await loadProject()
-  await loadCommits()
+    try {
+        await loadProject()
+        await loadCommits()
+    } catch {
+        router.push('/projects')
+    }
 })
 
 const loadProject = async () => {
-  const response = await api.get(`/projects/${route.params.id}`)
-  const response2 = await api.get('/users')
+    const response = await api.get(`/projects/${route.params.id}`)
+    const response2 = await api.get('/users')
 
-  project.value = response.data
-  editableContent.value = project.value.content
-  isOwner.value = project.value.author._id === response2.data._id
+    project.value = response.data
+    editableContent.value = project.value.content
+    isOwner.value = project.value.author._id === response2.data._id
 }
 
 const loadCommits = async () => {
-  const response = await api.get(`/commits/by-project/${route.params.id}`)
-  commits.value = response.data
+    const response = await api.get(`/commits/by-project/${route.params.id}`)
+    commits.value = response.data
 }
 
 const compiledMarkdown = computed(() => {
-  return DOMPurify.sanitize(marked(editableContent.value))
+    return DOMPurify.sanitize(marked(editableContent.value))
 })
 
 const downloadPdf = async () => {
-  try {
-    const response = await api.get(`/projects/${route.params.id}/pdf`, {
-      responseType: 'blob'
-    })
+    try {
+        const response = await api.get(`/projects/${route.params.id}/pdf`, {
+            responseType: 'blob'
+        })
 
-    const url = window.URL.createObjectURL(new Blob([response.data]))
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', 'document.pdf')
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-  } catch (error) {
-    console.error('Conversion error:', error)
-    alert('Ошибка при конвертации')
-  }
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'document.pdf')
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+    } catch (error) {
+        console.error('Conversion error:', error)
+        alert('Ошибка при конвертации')
+    }
 }
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('ru-RU', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+    return new Date(dateString).toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    })
 }
 
 const commitMessagePreview = (commit) => {
-  const diff = commit.newContent.length - commit.oldContent.length
-  return `Изменений: ${diff > 0 ? '+' : ''}${diff} символов`
+    const diff = commit.newContent.length - commit.oldContent.length
+    return `Изменений: ${diff > 0 ? '+' : ''}${diff} символов`
 }
 
 const goToCommit = (commitId) => {
-  router.push(`/commits/${commitId}`)
+    router.push(`/commits/${commitId}`)
 }
 
 const startEditing = () => {
-  isEditing.value = true
+    isEditing.value = true
 }
 
 const goToSettings = () => {
-  router.push(`/projects/${route.params.id}/settings`)
+    router.push(`/projects/${route.params.id}/settings`)
 }
 
 const togglePreview = () => {
-  showPreview.value = !showPreview.value
+    showPreview.value = !showPreview.value
 }
 
 const cancelEditing = () => {
-  isEditing.value = false
-  showPreview.value = false
-  editableContent.value = project.value.content
+    isEditing.value = false
+    showPreview.value = false
+    editableContent.value = project.value.content
 }
 
 const saveChanges = async () => {
-  try {
-    await api.put(`/projects/${route.params.id}/content`, {
-      content: editableContent.value
-    })
-    await loadProject()
-    await loadCommits()
-    isEditing.value = false
-    showPreview.value = false
-  } catch (error) {
-    console.error('Ошибка сохранения:', error)
-  }
+    try {
+        await api.put(`/projects/${route.params.id}/content`, {
+            content: editableContent.value
+        })
+        await loadProject()
+        await loadCommits()
+        isEditing.value = false
+        showPreview.value = false
+    } catch (error) {
+        console.error('Ошибка сохранения:', error)
+    }
 }
 </script>
 
@@ -335,7 +339,7 @@ const saveChanges = async () => {
     background: white;
 }
 
-.markdown-body h1, 
+.markdown-body h1,
 .markdown-body h2 {
     padding-bottom: 0.3em;
     border-bottom: 1px solid #eaecef;
